@@ -63,7 +63,7 @@ New-AzResourceGroup -Name $RGName -Location $region
 New-AzDeployment -Name $deployName -Location $region -TemplateFile ./azuredeploy.json -TemplateParameterObject $params
 ```
 
-Note : you can find this script in this repository under ./deploy.ps1
+Note : you can find this script in this repository under ./deployment/deploy.ps1
 
 ### Once the deployment is over.... authorize your Teams connection
 - Connect to the [Azure portal](https://portal.azure.com)
