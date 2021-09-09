@@ -1,0 +1,329 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+        "parameters": {
+        "rgName": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure resource group name"
+            },
+            "defaultValue" : "Azure-Budget"
+        },    
+        "rgLocation": {
+            "type": "string",            
+            "metadata": {
+                "description": "Azure resource group location"
+            },
+            "defaultValue" : "Azure-Budget"
+        },
+        "resourcePrefix": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 25,
+            "metadata": {
+                "description": "Prefix to your Azure resourcecs names"
+            },
+            "defaultValue": "Azure-Budget"
+        },
+        "azureBudget": {
+            "type": "int",
+            "metadata": {
+                "description": "Your Azure monthly budget (in USD)"
+            },
+            "defaultValue": 500
+        },     
+        "recipient": {
+            "type": "string",
+            "metadata": {
+                "description": "e-mail address (UPN) of the user that will receive the notification in Microsoft Teams"
+            }
+        },             
+        "startDay": {
+            "type": "string",
+            "metadata": {
+                "description": "First day of the current month"
+            },
+            "defaultValue": "[concat(utcNow('yyyy/MM'),'/01')]"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "actionGroupName" : "[concat('ActionGroup-', parameters('resourcePrefix'))]",
+        "budgetAlertName" : "[concat('Alert-', parameters('resourcePrefix'))]"
+    },
+    "resources": [  
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2020-10-01",
+            "name": "[parameters('rgName')]",
+            "location": "[parameters('rgLocation')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "nestedDeployment",
+            "resourceGroup": "[parameters('rgName')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups/', parameters('rgName'))]"
+            ],            
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "parameters": {
+                    "resourcePrefix": {
+                        "value": "[parameters('resourcePrefix')]"
+                    },
+                    "rgName": {
+                        "value": "[parameters('rgName')]"
+                    },
+                    "rgLocation": {
+                        "value": "[parameters('rgLocation')]"
+                    },
+                    "recipient": {
+                        "value": "[parameters('recipient')]"
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "rgName": {
+                            "type": "string",
+                            "metadata": {
+                                "description": "Azure resource group name"
+                            }
+                        },    
+                        "rgLocation": {
+                            "type": "string",            
+                            "metadata": {
+                                "description": "Azure resource group location"
+                            }
+                        },
+                        "resourcePrefix": {
+                            "type": "string",
+                            "minLength": 3,
+                            "maxLength": 25,
+                            "metadata": {
+                                "description": "Prefix to your Azure resourcecs names"
+                            },
+                            "defaultValue": "Azure-Budget"
+                        },
+                        "recipient": {
+                            "type": "string",
+                            "metadata": {
+                                "description": "e-mail address (UPN) of the user that will receive the notification in Microsoft Teams"
+                            }
+                        }                          
+                    },
+                    "variables": {
+                        "logicAppName" : "[concat('LogicApp-', parameters('resourcePrefix'))]",
+                        "connectionNameTeams" : "LogicApp-Connector-Teams",
+                        "actionGroupName" : "[concat('ActionGroup-', parameters('resourcePrefix'))]"
+                    },
+                    "resources": [                    
+                        {
+                            "name": "[variables('connectionNameTeams')]",
+                            "type": "Microsoft.Web/connections",
+                            "apiVersion": "2016-06-01",
+                            "location": "[parameters('rgLocation')]",
+                            "kind": "V1",
+                            "properties": {
+                                "displayName": "Microsoft Teams",
+                                "api": {
+                                    "name": "teams",
+                                    "displayName": "Microsoft Teams",
+                                    "description": "Microsoft Teams enables you to get all your content, tools and conversations in the Team workspace with Office 365.",
+                                    "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1505/1.0.1505.2520/teams/icon.png",
+                                    "brandColor": "#4B53BC",
+                                    "type": "Microsoft.Web/locations/managedApis",
+                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('rgLocation'), '/managedApis/', 'teams')]"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Logic/workflows",
+                            "apiVersion": "2017-07-01",
+                            "name": "[variables('logicAppName')]",
+                            "location": "[parameters('rgLocation')]",
+                            "properties": {
+                                "state": "Enabled",
+                                "definition": {
+                                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                                    "contentVersion": "1.0.0.0",
+                                    "parameters": {
+                                        "$connections": {
+                                            "defaultValue": {},
+                                            "type": "Object"
+                                        }
+                                    },
+                                    "triggers": {
+                                        "manual": {
+                                            "type": "Request",
+                                            "kind": "Http",
+                                            "inputs": {}
+                                        }
+                                    },
+                                    "actions": {
+                                        "Parse_JSON": {
+                                            "runAfter": {},
+                                            "type": "ParseJson",
+                                            "inputs": {
+                                                "content": "@triggerBody()",
+                                                "schema": {
+                                                    "properties": {
+                                                        "data": {
+                                                            "properties": {
+                                                                "AlertGenerationTime": {
+                                                                    "type": "string"
+                                                                },
+                                                                "BudgetName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "BudgetStartDate": {
+                                                                    "type": "string"
+                                                                },
+                                                                "BudgetThreshold": {
+                                                                    "type": "string"
+                                                                },
+                                                                "BudgetType": {
+                                                                    "type": "string"
+                                                                },
+                                                                "EvaluatedAmount": {
+                                                                    "type": "string"
+                                                                },
+                                                                "ForecastedTotalForPeriod": {
+                                                                    "type": "string"
+                                                                },
+                                                                "NotificationThresholdAmount": {
+                                                                    "type": "string"
+                                                                },
+                                                                "SubscriptionId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Unit": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "schemaId": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "Post_adaptive_card_in_a_chat_or_channel": {
+                                            "runAfter": {
+                                                "Parse_JSON": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "messageBody": "{\n    \"type\": \"AdaptiveCard\",\n    \"body\": [\n        {\n            \"type\": \"ColumnSet\",\n            \"columns\": [\n                {\n                    \"type\": \"Column\",\n                    \"verticalContentAlignment\": \"Center\",\n                    \"width\": \"200px\",\n                    \"items\": [\n                        {\n                            \"type\": \"TextBlock\",\n                            \"size\": \"large\",\n                            \"weight\": \"bolder\",\n                            \"text\": \"Azure Budget Alert !\",\n                            \"wrap\": true\n                        }\n                    ]\n                },\n                {\n                    \"type\": \"Column\",\n                    \"width\": \"stretch\",\n                    \"items\": [\n                        {\n                            \"type\": \"Image\",\n                            \"url\": \"https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b\",\n                            \"altText\": \"Microsoft Azure Logo\",\n                            \"horizontalAlignment\": \"Right\",\n                            \"height\": \"40px\"\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"type\": \"TextBlock\",\n            \"text\": \"Budget, @{body('Parse_JSON')?['data']?['BudgetName']}, has exceeded its threshold value and requires your review\",\n            \"wrap\": true,\n            \"weight\": \"Bolder\"\n        },\n        {\n            \"type\": \"TextBlock\",\n            \"text\": \"The total evaluated amount for your Azure budget, **@{body('Parse_JSON')?['data']?['BudgetName']}**, is now **$@{body('Parse_JSON')?['data']?['EvaluatedAmount']}**. This amount exceeds the threshold value of **$@{body('Parse_JSON')?['data']?['NotificationThresholdAmount']}** that you specified. Please review this budget in the Azure portal and analyze your cost and usage.\",\n            \"wrap\": true\n        },\n        {\n            \"type\": \"FactSet\",\n            \"separator\" :true,\n            \"spacing\" : \"medium\",\n            \"facts\": [\n                {\n                \"title\": \"Budget name\",\n                \"value\": \"@{body('Parse_JSON')?['data']?['BudgetName']}\"\n                },\n                {\n                \"title\": \"Budget start date\",\n                \"value\": \"@{body('Parse_JSON')?['data']?['BudgetStartDate']}\"\n                },\n                {\n                \"title\": \"Budget type\",\n                \"value\": \"@{body('Parse_JSON')?['data']?['BudgetType']}\"\n                },\n                {\n                \"title\": \"Budget threshold\",\n                \"value\": \"$@{body('Parse_JSON')?['data']?['BudgetThreshold']}\"\n                },\n                {\n                \"title\": \"Evaluated value\",\n                \"value\": \"$@{body('Parse_JSON')?['data']?['EvaluatedAmount']}\"\n                },\n                {\n                \"title\": \"Notification threshold for alert\",\n                \"value\": \"$@{body('Parse_JSON')?['data']?['NotificationThresholdAmount']}\"\n                },\n                {\n                \"title\": \"Total forecasted for period\",\n                \"value\": \"@{body('Parse_JSON')?['data']?['ForecastedTotalForPeriod']}\"\n                },\n                {\n                \"title\": \"Alert generation time\",\n                \"value\": \"@{body('Parse_JSON')?['data']?['AlertGenerationTime']}\"\n                }\n            ]\n        }        \n    ],\n    \"actions\": [\n\n        {\n            \"type\": \"Action.OpenUrl\",\n            \"title\": \"Click to review budget alerts in Azure\",\n            \"url\": \"https://ms.portal.azure.com/#@microsoft.onmicrosoft.com/resource/subscriptions/@{body('Parse_JSON')?['data']?['SubscriptionId']}/costAlerts\"\n        }\n    ],\n    \"$schema\": \"http://adaptivecards.io/schemas/adaptive-card.json\",\n    \"version\": \"1.2\"\n}",
+                                                    "recipient": "[parameters('recipient')]"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['teams']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/v1.0/teams/conversation/adaptivecard/poster/Flow bot/location/@{encodeURIComponent('Chat with Flow bot')}"
+                                            }
+                                        }
+                                    },
+                                    "outputs": {}
+                                },
+                                "parameters": {
+                                    "$connections": {
+                                        "value": {
+                                            "teams": {
+                                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('connectionNameTeams'))]",
+                                                "connectionName": "[variables('connectionNameTeams')]",
+                                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('rgLocation'), '/managedApis/', 'teams')]"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "dependsOn" :[
+                                "[resourceId('Microsoft.Web/connections',variables('connectionNameTeams'))]"
+                            ]  
+                        },
+                        {
+                            "type": "microsoft.insights/actionGroups",
+                            "apiVersion": "2019-06-01",
+                            "name": "[variables('actionGroupName')]",
+                            "location": "global",
+                            "properties": {
+                                "enabled": true,
+                                "groupShortName": "Azure-Budget",
+                                "logicAppReceivers": [
+                                    {
+                                        "callbackUrl": "[listCallbackURL(concat('/subscriptions/', subscription().subscriptionId ,'/resourceGroups/', parameters('rgName'), '/providers/Microsoft.Logic/workflows/' , variables('logicAppName'), '/triggers/manual'), '2019-05-01').value]",
+                                        "name": "AzLogicApp",
+                                        "resourceId": "[resourceId('Microsoft.Logic/workflows', variables('logicAppName'))]",
+                                        "useCommonAlertSchema": false
+                                    }
+                                ]
+                            },
+                            "dependsOn" :[
+                                "[resourceId('Microsoft.Logic/workflows',variables('logicAppName'))]"
+                            ]  
+                        }
+                    ],
+                    "outputs": {}
+                }
+            }
+        },        
+        {
+            "type": "Microsoft.Consumption/budgets",
+            "apiVersion": "2019-10-01",
+            "name": "[variables('budgetAlertName')]",
+            "dependsOn": [
+                "nestedDeployment"
+            ],             
+            "properties": {
+                "amount": "[parameters('azureBudget')]",
+                "category": "Cost",
+                "timeGrain": "Monthly",
+                "timePeriod": {
+                    "startDate": "[parameters('startDay')]"
+                },
+                "filter": {},
+                "notifications": {
+                    "actual_GreaterThan_80_Percent": {
+                        "enabled": true,
+                        "operator": "GreaterThan",
+                        "threshold": 80,
+                        "contactEmails": [],
+                        "contactRoles": [],
+                        "contactGroups": [
+                            "[resourceId('microsoft.insights/actionGroups', variables('actionGroupName'))]"
+                        ],
+                        "thresholdType": "Actual"
+                    },
+                    "forecasted_GreaterThan_100_Percent": {
+                        "enabled": true,
+                        "operator": "GreaterThan",
+                        "threshold": 100,
+                        "contactEmails": [],
+                        "contactRoles": [],
+                        "contactGroups": [
+                            "[resourceId('microsoft.insights/actionGroups', variables('actionGroupName'))]"
+                        ],
+                        "thresholdType": "Forecasted"
+                    }                
+                }
+            }
+        }              
+    ],
+    "outputs": {}
+}
