@@ -3,7 +3,7 @@ $region="westeurope"
 $params = @{
     rgName = $RGname
     rgLocation = $region
-    recipient = "aleki@microsoft.com"
+    recipient = "john@microsoft.com"
 }
 $deployName=("deploy-" + (Get-date -Format "yymmdd-hhmmss"))
 

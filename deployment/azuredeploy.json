@@ -12,9 +12,16 @@
         "rgLocation": {
             "type": "string",            
             "metadata": {
-                "description": "Azure resource group location"
+                "description": "Azure resource group location - Select the region that correspond to the Region selected above"
             },
-            "defaultValue" : "Azure-Budget"
+            "allowedValues": [
+                "westeurope",
+                "eastus",
+                "westus",
+                "eastasia",
+                "southindia",
+                "brazilsoutheast"
+            ]
         },
         "resourcePrefix": {
             "type": "string",
@@ -22,8 +29,7 @@
             "maxLength": 25,
             "metadata": {
                 "description": "Prefix to your Azure resourcecs names"
-            },
-            "defaultValue": "Azure-Budget"
+            }
         },
         "azureBudget": {
             "type": "int",
@@ -36,7 +42,8 @@
             "type": "string",
             "metadata": {
                 "description": "e-mail address (UPN) of the user that will receive the notification in Microsoft Teams"
-            }
+            },
+            "defaultValue" : "e.g. john.doe@microsoft.com"
         },             
         "startDay": {
             "type": "string",
