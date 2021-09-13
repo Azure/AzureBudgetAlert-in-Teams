@@ -2,7 +2,9 @@
 
 ## What it is
 
-This Azure template deploys and configures budget alerts at the subscription level and notifies the user in Microsoft Teams via an adaptive card.
+This Azure template deploys and configures budget alerts at the subscription level and notifies the user in Microsoft Teams via an adaptive card when a budget threshold is met.
+
+Note : Cost and usage data is typically available within 8-24 hours and budgets are evaluated against these costs every 24 hours. Check [Create and manage Azure budgets](https://docs.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets) if you need more details on budgets and alerts configuration for Azure.
 
 ## Solution overview
 
