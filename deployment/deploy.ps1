@@ -3,9 +3,10 @@ $region="westeurope"
 $params = @{
     rgName = $RGname
     rgLocation = $region
-    recipient = "john@microsoft.com"
+    recipient = "aleki@microsoft.com"
+    resourcePrefix = "Azure-Budget"
 }
 $deployName=("deploy-" + (Get-date -Format "yymmdd-hhmmss"))
 
-New-AzResourceGroup -Name $RGName -Location $region
+New-AzResourceGroup -Name $RGName -Location $region -Force
 New-AzDeployment -Name $deployName -Location $region -TemplateFile ./azuredeploy.json -TemplateParameterObject $params

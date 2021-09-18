@@ -24,7 +24,7 @@ Note : Cost and usage data is typically available within 8-24 hours and budgets 
 Here is what the adaptive card in Microosft Teams looks like
 
 <p align="center">
-    <img src="./media/adaptive-card.png" alt="Azure Budget Alert - Adaptive Card in Teams" width="400"/>
+    <img src="./media/adaptive-card.png" alt="Azure Budget Alert - Adaptive Card in Teams" width="500"/>
 </p>
 
 Note : the Azure ARM template deploys resource at the subscription and resource group level - This is why you'll be asked to enter the resource group name and location twice in the Azure Portal wizard. Make sure you enter the same values.
@@ -52,12 +52,11 @@ Input parameters :
 <br>
 
 ```powershell
-$RGname="RESOURCE_GROUP_NAME"
-$region="AZURE_REGION"
 $params = @{
-    rgName = $RGname
-    rgLocation = $region
+    rgName = "RESOURCE_GROUP_NAME"
+    rgLocation = "AZURE_REGION"
     recipient = "USER_EMAIL_ADDRESS_IN_TEAMS"
+    resourcePrefix = "AZURE_RESOURCE_PREFIX"
 }
 $deployName=("deploy-" + (Get-date -Format "yymmdd-hhmmss"))
 
