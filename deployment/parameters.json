@@ -6,10 +6,10 @@
             "value": "Azure-Budget"
         },
         "rgLocation": {
-            "value": "westeurope"
+            "value": "northeurope"
         },
         "recipient": {
-            "value": "john@microsoft.com"
+            "value": "john.doe@contoso.com"
         },
         "resourcePrefix": {
             "value": "AzBudget"
