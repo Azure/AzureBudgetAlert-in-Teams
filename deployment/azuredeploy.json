@@ -391,7 +391,7 @@
         },        
         {
             "type": "Microsoft.Consumption/budgets",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2019-04-01-preview",
             "name": "[variables('budgetAlertName')]",
             "condition": "[variables('deployThisResource')]",
             "dependsOn": [
@@ -433,12 +433,12 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
+            "apiVersion": "2019-04-01-preview",
             "name": "[variables('roleAssignmentName')]",
             "condition": "[variables('deployThisResource')]",
             "properties": {
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('costManagerReaderRoleId'))]",
-                "principalId": "[if(variables('deployThisResource'),reference('nestedDeployment').outputs.principalID.value,'does not matter')]",
+                "principalId": "[if(variables('deployThisResource'),reference('nestedDeployment').outputs.principalID.value,'Does not matter')]",
                 "principalType": "ServicePrincipal",
                 "scope" : "[subscription().id]"
             },
