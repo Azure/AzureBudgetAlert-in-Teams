@@ -29,8 +29,7 @@
             "maxLength": 25,
             "metadata": {
                 "description": "Prefix to your Azure resources names"
-            },
-            "defaultValue" : "AzBudget"
+            }
         },
         "azureBudget": {
             "type": "int",
