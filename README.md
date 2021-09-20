@@ -52,9 +52,11 @@ Input parameters :
 <br>
 
 ```powershell
+$RGname="RESOURCE_GROUP_NAME"
+$region="AZURE_REGION"
 $params = @{
-    rgName = "RESOURCE_GROUP_NAME"
-    rgLocation = "AZURE_REGION"
+    rgName = $RGname
+    rgLocation = $region
     recipient = "USER_EMAIL_ADDRESS_IN_TEAMS"
     resourcePrefix = "AZURE_RESOURCE_PREFIX"
 }

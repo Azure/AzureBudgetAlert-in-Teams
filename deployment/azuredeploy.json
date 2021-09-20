@@ -60,7 +60,8 @@
         "costManagerReaderRoleId" : "72fafb9e-0641-4937-9268-a91bfd8191a3",
         "roleAssignmentName": "[guid(subscription().id, parameters('rgName'), variables('costManagerReaderRoleId'))]",
         "actual_threshold" : 80,
-        "forecasted_threshold" : 100
+        "forecasted_threshold" : 100,
+        "deployThisResource" : true
     },
     "resources": [  
         {
@@ -393,6 +394,7 @@
             "type": "Microsoft.Consumption/budgets",
             "apiVersion": "2019-10-01",
             "name": "[variables('budgetAlertName')]",
+            "condition": "[variables('deployThisResource')]",
             "dependsOn": [
                 "nestedDeployment"
             ],             
@@ -412,7 +414,7 @@
                         "contactEmails": [],
                         "contactRoles": [],
                         "contactGroups": [
-                            "[resourceId('microsoft.insights/actionGroups', variables('actionGroupName'))]"
+                            "[if(variables('deployThisResource'),resourceId('microsoft.insights/actionGroups', variables('actionGroupName')),'Does not matter')]"
                         ],
                         "thresholdType": "Actual"
                     },
@@ -423,7 +425,7 @@
                         "contactEmails": [],
                         "contactRoles": [],
                         "contactGroups": [
-                            "[resourceId('microsoft.insights/actionGroups', variables('actionGroupName'))]"
+                            "[if(variables('deployThisResource'),resourceId('microsoft.insights/actionGroups', variables('actionGroupName')),'Does not matter')]"
                         ],
                         "thresholdType": "Forecasted"
                     }                
@@ -432,11 +434,13 @@
         },
         {
             "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2015-07-01",
+            "apiVersion": "2017-09-01",
             "name": "[variables('roleAssignmentName')]",
+            "condition": "[variables('deployThisResource')]",
             "properties": {
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('costManagerReaderRoleId'))]",
-                "principalId": "[reference('nestedDeployment').outputs.principalID.value]",
+                "principalId": "[if(variables('deployThisResource'),reference('nestedDeployment').outputs.principalID.value,'does not matter')]",
+                "principalType": "ServicePrincipal",
                 "scope" : "[subscription().id]"
             },
             "dependsOn": [

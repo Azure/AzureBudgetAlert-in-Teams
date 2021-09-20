@@ -12,7 +12,7 @@
             "value": "john@microsoft.com"
         },
         "resourcePrefix": {
-            "value": "Azure-Budget"
+            "value": "AzBudget"
         }
     }
 }

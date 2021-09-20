@@ -1,10 +1,10 @@
-$RGname="Azure-Budget"
+$RGname="Azure-Budget3"
 $region="westeurope"
 $params = @{
     rgName = $RGname
     rgLocation = $region
     recipient = "aleki@microsoft.com"
-    resourcePrefix = "Azure-Budget"
+    resourcePrefix = "AzBudget"
 }
 $deployName=("deploy-" + (Get-date -Format "yymmdd-hhmmss"))
 
