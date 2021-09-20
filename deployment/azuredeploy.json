@@ -384,6 +384,10 @@
                         "principalID" : {
                             "type" : "string",
                             "value" : "[reference(resourceId('Microsoft.Logic/workflows',variables('logicAppName')), '2019-05-01', 'Full').identity.principalId]"
+                        },
+                        "actionGroupsID" : {
+                            "type" : "string",
+                            "value" : "[resourceId('microsoft.insights/actionGroups',variables('actionGroupName'))]"
                         }
                     }
                 }
@@ -413,7 +417,7 @@
                         "contactEmails": [],
                         "contactRoles": [],
                         "contactGroups": [
-                            "[if(variables('deployThisResource'),resourceId('microsoft.insights/actionGroups', variables('actionGroupName')),'Does not matter')]"
+                            "[if(variables('deployThisResource'),reference('nestedDeployment').outputs.actionGroupsID.value,'Does not matter')]"
                         ],
                         "thresholdType": "Actual"
                     },
@@ -424,7 +428,7 @@
                         "contactEmails": [],
                         "contactRoles": [],
                         "contactGroups": [
-                            "[if(variables('deployThisResource'),resourceId('microsoft.insights/actionGroups', variables('actionGroupName')),'Does not matter')]"
+                            "[if(variables('deployThisResource'),reference('nestedDeployment').outputs.actionGroupsID.value,'Does not matter')]"
                         ],
                         "thresholdType": "Forecasted"
                     }                
