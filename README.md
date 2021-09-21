@@ -51,7 +51,7 @@ Input parameters :
 ### Option 1 - via the Azure portal
 <br>
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftimoleo23%2FAzureBudgetAlert-in-Teams%2Fmain%2Fdeployment%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzureBudgetAlert-in-Teams%2Fmain%2Fdeployment%2Fazuredeploy.json)
 
 
 ### Option 2 - via PowerShell
