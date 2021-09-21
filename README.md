@@ -21,10 +21,16 @@ Note : Cost and usage data is typically available within 8-24 hours and budgets 
 
 - The Azure Logic App then in turns creates an adaptive cards and pushes the notification to the user into Microsoft Teams
 
-Here is what the adaptive card in Microosft Teams looks like
+Here is what the adaptive cards in Microsoft Teams look like
 
+<p align="center"><b>Azure Budget Alert (actual costs) - Teams Adaptive Card</b></p>
 <p align="center">
-    <img src="./media/adaptive-card.png" alt="Azure Budget Alert - Adaptive Card in Teams" width="500"/>
+    <img src="./media/azure-budget-alert-actual-costs.jpg" alt="Azure Budget Alert (actual costs) - Teams Adaptive Card" width="500"/>
+</p>
+
+<p align="center"><b>Azure Budget Alert (forecasted costs) - Teams Adaptive Card</b></p>
+<p align="center">
+    <img src="./media/azure-budget-alert-forecasted-costs.jpg" alt="Azure Budget Alert (forecasted costs) - Teams Adaptive Card" width="500"/>
 </p>
 
 Note : the Azure ARM template deploys resource at the subscription and resource group level - This is why you'll be asked to enter the resource group name and location twice in the Azure Portal wizard. Make sure you enter the same values.
@@ -40,7 +46,7 @@ Input parameters :
 | resourcePrefix | Prefix to your Azure resourcecs names |
 | azureBudget | Your Azure monthly budget (in USD) |
 | recipient | e-mail address (UPN) of the user that will receive the notification in Microsoft Teams |
-| startDay | First day of the current month |
+| startDay | First day of the current month (format : YYYY/MM/01) |
 
 ### Option 1 - via the Azure portal
 <br>
